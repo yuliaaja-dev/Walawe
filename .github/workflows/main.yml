@@ -1,0 +1,43 @@
+name: Build APK AppBuilderry Real Fixed
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17' # SDK 34 butuh Java 17
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Inisialisasi Environment Bersih
+      run: |
+        npm install -g cordova@13.0.0
+        # Bikin package.json otomatis agar platform bisa masuk
+        echo '{"name": "com.appbuilder.cid.sann", "displayName": "AppBuilder"}' > package.json
+
+    - name: Jalankan Cordova Build Android
+      run: |
+        cordova platform add android@13.0.0 --no-telemetry
+        cordova build android --debug --no-telemetry
+
+    - name: Ambil File APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: Hasil-Build-APK-Sukses
+        path: platforms/android/app/build/outputs/apk/debug/*.apk
